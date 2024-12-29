@@ -2,8 +2,6 @@
 
 Example:
 
-![Example of MMM-Fireworks](./MMM-Fireworks.png)
-
 ![Example of MMM-Fireworks](./MMM-Fireworks.mov)
 
 The MMM-Fireworks module brings a visually stunning fireworks display to your MagicMirror, designed to celebrate special occasions. 
