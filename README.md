@@ -63,8 +63,6 @@ Focuses purely on the visual effect, ideal for quiet celebrations.
 ### Responsive Design:
 Automatically adjusts to the screen size and aspect ratio.
 
-
-
 ## Configuration options
 
 Option|Possible values|Default|Description
@@ -73,21 +71,17 @@ Option|Possible values|Default|Description
 `duration`|`integer`|`1*60*60*1000`|Interval (in milliseconds) for animation. 1 hour in this example.
 
 ## How It Works
-
 - The module listens for the specified startDateTime and triggers the fireworks display.
 - Firework particles are generated using a canvas element with dynamic physics for lifelike effects.
 - After the specified duration, the display automatically stops and clears the screen.
 
 ### Technical Details
-
 - Rendering: Utilizes the HTML5 <canvas> element for smooth and efficient animations.
 - Customization: Adjust parameters like particle count, explosion size, and firework frequency in the JavaScript file (fireworks.js).
 - Dependencies: None required; the module uses native browser capabilities.
 
 ## Use Case
-
 Perfect for occasions like:
-
 - New Year's Eve: Kick off the new year with an exciting visual treat.
 - Birthdays or Anniversaries: Highlight special moments with colorful displays.
 - National Holidays: Celebrate with virtual fireworks that light up your MagicMirror.
