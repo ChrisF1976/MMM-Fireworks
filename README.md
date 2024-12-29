@@ -4,6 +4,8 @@ Example:
 
 ![Example of MMM-Fireworks](./MMM-Fireworks.png)
 
+![Example of MMM-Fireworks](./MMM-Fireworks.mov)
+
 The MMM-Fireworks module brings a visually stunning fireworks display to your MagicMirror, designed to celebrate special occasions. 
 The fireworks animation runs best in the fullscreen_above region, creating an immersive experience.
 The start time and duration of the display are configurable via the config.js file.
