@@ -47,19 +47,50 @@ To use this module, add it to the modules array in the `config/config.js` file:
 },
 ```
 
+## Features
+
+### Fireworks Animation:
+A vibrant and dynamic fireworks effect with colorful explosions and particle trails.
+Animations simulate real fireworks with gravity, random directions, and fading effects.
+### Configurable Start Time:
+Trigger the fireworks display at a specific date and time, e.g., for New Year's Eve celebrations.
+### Customizable Duration:
+Define how long the fireworks animation runs.
+### Full-Screen Display:
+The module occupies the entire screen (fullscreen_above region) for maximum impact.
+### No Sound:
+Focuses purely on the visual effect, ideal for quiet celebrations.
+### Responsive Design:
+Automatically adjusts to the screen size and aspect ratio.
+
+
+
 ## Configuration options
 
 Option|Possible values|Default|Description
 ------|---------------|-------|-----------
-`startDateTime`|`string`|none|API key for authenticating requests to the event service. Get yours on https://serpapi.com.
-`query`|`string`|`"Veranstaltungen Braunschweig"`|The search query for fetching events. Modify it to match the events you're looking for.
-`location`|`string`|`"Germany"`|Location to restrict the event search to.
-`updateInterval`|`integer`|`12*60*60*1000`|Interval (in milliseconds) for automatically refreshing the events list.
-`hl`|`string`|`"de"`|Language for search results. Set it to the desired language code (e.g., `"en"` for English).
-`gl`|`string`|`"de"`|Geolocation for search. Set it to the desired country code (e.g., `"us"` for the United States).
-`googleDomain`|`string`|`"google.de"`|The Google domain to use for event search.
-`moduleWidth`|`string`|`"400px"`|Configurable width for the module. You can adjust it to fit your layout.
+`startDateTime`|`string`|"2024-12-31T23:59:00"|Define the start time for the effect.
+`duration`|`integer`|`1*60*60*1000`|Interval (in milliseconds) for animation. 1 hour in this example.
 
+## How It Works
+
+- The module listens for the specified startDateTime and triggers the fireworks display.
+- Firework particles are generated using a canvas element with dynamic physics for lifelike effects.
+- After the specified duration, the display automatically stops and clears the screen.
+
+### Technical Details
+
+- Rendering: Utilizes the HTML5 <canvas> element for smooth and efficient animations.
+- Customization: Adjust parameters like particle count, explosion size, and firework frequency in the JavaScript file (fireworks.js).
+- Dependencies: None required; the module uses native browser capabilities.
+
+## Use Case
+
+Perfect for occasions like:
+
+- New Year's Eve: Kick off the new year with an exciting visual treat.
+- Birthdays or Anniversaries: Highlight special moments with colorful displays.
+- National Holidays: Celebrate with virtual fireworks that light up your MagicMirror.
 
 ## Credits
 - Open AI
