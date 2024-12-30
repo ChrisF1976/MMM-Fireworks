@@ -1,9 +1,8 @@
 #fireworksContainer {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     z-index: 9999; /* Above other modules */
     pointer-events: none; /* Allow clicks to pass through */
 }

@@ -1,11 +1,12 @@
 Module.register("MMM-Fireworks", {
     defaults: {
         startDateTime: "2024-12-31T23:59:00", // ISO format
-        duration: 60000, // Duration in milliseconds (e.g., 1 minute)
+        duration: 60000, // Duration in milliseconds
     },
 
     start: function () {
         this.fireworksActive = false;
+        this.disabledModules = [];
     },
 
     getDom: function () {
@@ -36,12 +37,18 @@ Module.register("MMM-Fireworks", {
         this.fireworksActive = true;
         const container = document.getElementById("fireworksContainer");
         container.classList.add("fullscreen");
-        
+
         const canvas = document.createElement("canvas");
         canvas.id = "fireworksCanvas";
         container.appendChild(canvas);
 
-        const fireworks = new Fireworks(canvas);
+        this.deactivateAndHideModules(); // Suspend and hide modules
+
+        const fireworks = new Fireworks(canvas, {
+            maxRockets: 5,
+            rocketSpawnInterval: 100,
+            numParticles: 80,
+        });
         fireworks.start();
 
         setTimeout(() => {
@@ -53,6 +60,33 @@ Module.register("MMM-Fireworks", {
         fireworks.stop();
         container.innerHTML = ""; // Clear the canvas
         this.fireworksActive = false;
+        this.reactivateAndShowModules(); // Reactivate and show modules
+    },
+
+   deactivateAndHideModules: function () {
+        MM.getModules().enumerate((module) => {
+            if (module.name !== "MMM-Fireworks") {
+                // Suspend the module if possible
+                if (module.suspend) {
+                    module.suspend();
+                }
+                // Hide the module with an empty callback function
+                module.hide(500, () => {}); // Provide an empty callback function
+                this.disabledModules.push(module);
+            }
+        });
+    },
+
+    reactivateAndShowModules: function () {
+        this.disabledModules.forEach((module) => {
+            // Resume the module if it was suspended
+            if (module.resume) {
+                module.resume();
+            }
+            // Show the module with an empty callback function
+            module.show(500, () => {}); // Provide an empty callback function
+        });
+        this.disabledModules = []; // Clear the list
     },
 
     getStyles: function () {
@@ -61,5 +95,5 @@ Module.register("MMM-Fireworks", {
 
     getScripts: function () {
         return ["fireworks.js"];
-    }
+    },
 });

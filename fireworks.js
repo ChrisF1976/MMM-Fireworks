@@ -10,8 +10,8 @@ class Fireworks {
     }
 
     setup() {
-        this.canvas.width = this.width;
-        this.canvas.height = this.height;
+        this.canvas.width = this.width*0.95
+        this.canvas.height = this.height*0.95
         window.addEventListener("resize", () => this.resize());
     }
 
@@ -41,7 +41,7 @@ class Fireworks {
 
     update() {
         // Add new fireworks
-        if (Math.random() < 0.2) { // Increased frequency
+        if (Math.random() < 0.4) { // Increased frequency
             this.fireworkTrails.push(this.createFirework());
         }
 
@@ -61,7 +61,7 @@ class Fireworks {
         this.particles.forEach((p) => {
             p.x += p.vx;
             p.y += p.vy;
-            p.vy += 0.02; // Gravity
+            p.vy += 0.01; // Gravity
             p.alpha -= 0.01;
         });
 
@@ -99,7 +99,7 @@ class Fireworks {
     }
 
     createExplosion(x, y) {
-        const particleCount = 50; // More particles for each explosion
+        const particleCount = 25; // More particles for each explosion
         for (let i = 0; i < particleCount; i++) {
             const angle = (Math.PI * 2 * i) / particleCount;
             const speed = Math.random() * 3 + 1;
