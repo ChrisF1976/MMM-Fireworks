@@ -51,6 +51,7 @@ To use this module, add it to the modules array in the `config/config.js` file:
             magnitude_low: -8,                      //adjust to your screen size. Try a little.
             // Trailing effect transparency (alpha value for background):
             transparency: 60,                       //min: 0 max: 255 - best is around 50 for a nice effect
+            canvasOpacity: 0.5,                     // New parameter: opacity for the canvas
             // Module management settings:
             disableAllModules: true,                // If true, hide all other modules during fireworks. No visible effect in fullscreen.
             keepModules: [""],                      // Array of module names to keep active (e.g., "clock")
@@ -87,6 +88,7 @@ Displays customizable overlay text (e.g., "Happy New Year!") with CSS-controlled
 | `magnitude_high`       | Number                   | `-19`                              | The higher (more negative) bound for the initial upward velocity of the rocket particles. Determines how fast they launch upward.                           |
 | `magnitude_low`        | Number                   | `-8`                               | The lower (less negative) bound for the initial upward velocity of the rocket particles. Determines the slowest upward speed before explosion.              |
 | `transparency`         | Number (0–255)           | `10`                               | The alpha value used in the `p.background()` call to create the trailing effect. Lower values mean the background is more transparent.                      |
+| `canvasOpacity`        | Number (0-1)             | `0.5`                             | opacity for the canvas to add a see through effect also in fullscreen if `disableAllModules` is set to false                                               |
 | `disableAllModules`    | Boolean                  | `true`                             | If set to `true`, all other modules (except those specified in `keepModules`) will be hidden (and suspended) during the fireworks effect.                  |
 | `keepModules`          | Array of Strings         | `["clock"]`                        | A list of module names that should remain active even when `disableAllModules` is `true`. For example, if you want to keep a clock module visible, list its name here. |
 | `text`                 | String                   | `"Happy New Year!"`                | The text that will be overlaid on the module during the fireworks period. Its styling (font, size, color, position) is controlled via the CSS file.         |
