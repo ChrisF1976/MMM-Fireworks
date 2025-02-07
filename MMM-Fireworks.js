@@ -6,7 +6,7 @@ Module.register("MMM-Fireworks", {
     fireworkSpawnChance: 0.5,              // Chance each frame to spawn a new firework
     explosionParticleCount: 40,            // Number of particles per explosion
     // Display settings:
-    fullscreen: false,                     // If false, use the defined width/height.
+    fullscreen: true,                      // If false, use the defined width/height.
     width: "400px",
     height: "500px",
     // Velocity settings for rocket particles:
@@ -14,9 +14,11 @@ Module.register("MMM-Fireworks", {
     magnitude_low: -8,
     // Trailing effect transparency (alpha value for background):
     transparency: 10,
+    // New canvas opacity (0.0 = fully transparent, 1.0 = fully opaque)
+    canvasOpacity: 0.5,
     // Module management settings:
-    disableAllModules: true,               // If true, hide all other modules during fireworks
-    keepModules: ["clock"],                // Array of module names to keep active (e.g., "clock")
+    disableAllModules: true,               // Set to false so other modules remain visible.
+    keepModules: [],                       // Array of module names to keep active.
     // Text overlay:
     text: "Happy New Year!"
   },
@@ -52,7 +54,7 @@ Module.register("MMM-Fireworks", {
       textDiv.id = "fireworksText";
       textDiv.className = "fireworks-text";
       textDiv.innerHTML = this.config.text;
-      textDiv.style.display = "none"; // Hidden by default
+      textDiv.style.display = "none"; // Hidden by default; shown during fireworks.
       wrapper.appendChild(textDiv);
     }
     
@@ -66,7 +68,7 @@ Module.register("MMM-Fireworks", {
   },
 
   scheduleFireworks: function () {
-    const MAX_DELAY = 2147483647; // Maximum delay allowed (~24.8 days in milliseconds)
+    const MAX_DELAY = 2147483647; // Maximum delay in ms (~24.8 days)
     const startTime = new Date(this.config.startDateTime).getTime();
     const currentTime = Date.now();
     const duration = this.config.duration;
@@ -74,7 +76,6 @@ Module.register("MMM-Fireworks", {
     if (currentTime < startTime) {
       let delay = startTime - currentTime;
       if (delay > MAX_DELAY) {
-        // If the delay is too long, wait MAX_DELAY and re-check.
         setTimeout(() => this.scheduleFireworks(), MAX_DELAY);
       } else {
         setTimeout(() => this.startFireworks(), delay);
@@ -97,7 +98,11 @@ Module.register("MMM-Fireworks", {
       textDiv.style.display = "block";
     }
     
-    this.deactivateAndHideModules();
+    // Do not hide other modules if disableAllModules is false.
+    if (this.config.disableAllModules) {
+      this.deactivateAndHideModules();
+    }
+    
     this.initializeP5();
     setTimeout(() => {
       this.stopFireworks();
@@ -112,28 +117,26 @@ Module.register("MMM-Fireworks", {
     const container = document.getElementById("fireworksContainer");
     container.innerHTML = "";
     this.fireworksActive = false;
-    this.reactivateAndShowModules();
+    if (this.config.disableAllModules) {
+      this.reactivateAndShowModules();
+    }
   },
 
   deactivateAndHideModules: function () {
-    if (this.config.disableAllModules) {
-      const self = this;
-      MM.getModules().enumerate(function (module) {
-        if (
-          module.name !== "MMM-Fireworks" &&
-          self.config.keepModules.indexOf(module.name) === -1
-        ) {
-          console.log("Hiding module: " + module.name);
-          module.hide(500, () => {});
-          if (module.suspend) {
-            module.suspend();
-          }
-          self.disabledModules.push(module);
+    const self = this;
+    MM.getModules().enumerate(function (module) {
+      if (
+        module.name !== "MMM-Fireworks" &&
+        self.config.keepModules.indexOf(module.name) === -1
+      ) {
+        console.log("Hiding module: " + module.name);
+        module.hide(500, () => {});
+        if (module.suspend) {
+          module.suspend();
         }
-      });
-    } else {
-      console.log("disableAllModules is false; no modules will be hidden.");
-    }
+        self.disabledModules.push(module);
+      }
+    });
   },
 
   reactivateAndShowModules: function () {
@@ -156,7 +159,7 @@ Module.register("MMM-Fireworks", {
     this._p5Instance = new p5(function (p) {
       let fireworks = [];
       let gravity;
-      // Set up a full clear every 2 minutes to remove ghost trails.
+      // Optional: clear the canvas fully every 2 minutes to remove ghost trails.
       setInterval(function () {
         console.log("Performing full redraw (clear) every 2 minutes.");
         p.clear();
@@ -165,6 +168,8 @@ Module.register("MMM-Fireworks", {
       p.setup = function () {
         const container = document.getElementById("fireworksContainer");
         p.createCanvas(container.offsetWidth, container.offsetHeight);
+        // Set the canvas opacity to the configured value.
+        p.canvas.style.opacity = config.canvasOpacity;
         p.colorMode(p.HSB, 255);
         gravity = p.createVector(0, 0.2);
         p.background(0);
@@ -196,7 +201,7 @@ Module.register("MMM-Fireworks", {
           this.pos = p.createVector(x, y);
           this.isFirework = isFirework;
           if (this.isFirework) {
-            // Use configured magnitude values for the rocket's upward velocity.
+            // Rocket's upward velocity based on config values.
             this.vel = p.createVector(0, p.random(config.magnitude_high, config.magnitude_low));
           } else {
             this.vel = p5.Vector.random2D();
