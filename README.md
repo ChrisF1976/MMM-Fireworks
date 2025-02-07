@@ -62,19 +62,16 @@ To use this module, add it to the modules array in the `config/config.js` file:
 
 ## Features
 
-### Fireworks Animation:
-A vibrant and dynamic fireworks effect with colorful explosions and particle trails.
-Animations simulate real fireworks with gravity, random directions, and fading effects.
-### Configurable Start Time:
-Trigger the fireworks display at a specific date and time, e.g., for New Year's Eve celebrations.
-### Customizable Duration:
-Define how long the fireworks animation runs.
-### Full-Screen Display:
-The module occupies the entire screen (fullscreen_above region) for maximum impact.
-### No Sound:
-Focuses purely on the visual effect, ideal for quiet celebrations.
-### Responsive Design:
-Automatically adjusts to the screen size and aspect ratio.
+### Schedules the Display: 
+Starts the fireworks effect at a configured date and time for a specified duration.
+### Customizable Appearance:
+Allows you to adjust parameters such as rocket velocity, explosion particle count, and trailing transparency.
+### Flexible Layout:
+Can run in full-screen mode or within defined dimensions.
+### Module Management:
+Optionally hides other modules during the fireworks display (with exceptions you can configure).
+### Text Overlay:
+Displays customizable overlay text (e.g., "Happy New Year!") with CSS-controlled styling and positioning.
 
 ## Configuration options
 
@@ -94,16 +91,6 @@ Automatically adjusts to the screen size and aspect ratio.
 | `keepModules`          | Array of Strings         | `["clock"]`                        | A list of module names that should remain active even when `disableAllModules` is `true`. For example, if you want to keep a clock module visible, list its name here. |
 | `text`                 | String                   | `"Happy New Year!"`                | The text that will be overlaid on the module during the fireworks period. Its styling (font, size, color, position) is controlled via the CSS file.         |
 
-
-## How It Works
-- The module listens for the specified startDateTime and triggers the fireworks display.
-- Firework particles are generated using a canvas element with dynamic physics for lifelike effects.
-- After the specified duration, the display automatically stops and clears the screen.
-
-### Technical Details
-- Rendering: Utilizes the HTML5 <canvas> element for smooth and efficient animations.
-- Customization: Adjust parameters like particle count, explosion size, and firework frequency in the JavaScript file (fireworks.js).
-- Dependencies: None required; the module uses native browser capabilities.
 
 ## Use Case
 Perfect for occasions like:
