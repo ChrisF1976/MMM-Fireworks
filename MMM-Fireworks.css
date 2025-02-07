@@ -1,8 +1,53 @@
+/* Fullscreen container styling */
 #fireworksContainer {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 9999; /* Above other modules */
-    pointer-events: none; /* Allow clicks to pass through */
+  background: transparent;
+  position: relative; /* Ensure children (like the text overlay) are positioned relative to this container */
+}
+
+/* Composite animation: jump, font-size change, and rotation */
+@keyframes jumpAndRotate {
+  0% {
+    transform: translate(-50%, 0) rotate(0deg);
+    font-size: 3em;
+  }
+  25% {
+    transform: translate(-50%, -10px) rotate(15deg);
+    font-size: 3.2em;
+  }
+  50% {
+    transform: translate(-50%, -20px) rotate(30deg);
+    font-size: 3.5em;
+  }
+  75% {
+    transform: translate(-50%, -10px) rotate(-15deg);
+    font-size: 3.2em;
+  }
+  100% {
+    transform: translate(-50%, 0) rotate(0deg);
+    font-size: 3em;
+  }
+}
+
+/* Color change animation */
+@keyframes colorchange {
+  0%   { color: red; }
+  25%  { color: orange; }
+  50%  { color: yellow; }
+  75%  { color: green; }
+  100% { color: blue; }
+}
+
+/* Apply the composite animations to the text overlay */
+.fireworks-text {
+  position: absolute;
+  top: 25%;              /* 25% from the top */
+  left: 50%;             /* Center horizontally */
+  transform: translate(-50%, 0);
+  font-family: "Arial", sans-serif;
+  text-align: center;
+  pointer-events: none;  /* Allow clicks to pass through */
+  z-index: 10000;
+  /* Run both animations simultaneously: jumpAndRotate (1s, ease-in-out, infinite) 
+     and colorchange (3s, linear, infinite) */
+  animation: jumpAndRotate 10s ease-in-out infinite, colorchange 3s linear infinite;
 }

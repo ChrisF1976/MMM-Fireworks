@@ -1,99 +1,287 @@
 Module.register("MMM-Fireworks", {
-    defaults: {
-        startDateTime: "2024-12-31T23:59:00", // ISO format
-        duration: 60000, // Duration in milliseconds
-    },
+  defaults: {
+    startDateTime: "2025-12-31T23:59:30", // ISO format start time
+    duration: 6 * 60 * 60 * 1000,          // Duration in milliseconds (6 hours)
+    // p5 Fireworks settings:
+    fireworkSpawnChance: 0.5,              // Chance each frame to spawn a new firework
+    explosionParticleCount: 40,            // Number of particles per explosion
+    // Display settings:
+    fullscreen: false,                     // If false, use the defined width/height.
+    width: "400px",
+    height: "500px",
+    // Velocity settings for rocket particles:
+    magnitude_high: -19,
+    magnitude_low: -8,
+    // Trailing effect transparency (alpha value for background):
+    transparency: 10,
+    // Module management settings:
+    disableAllModules: true,               // If true, hide all other modules during fireworks
+    keepModules: ["clock"],                // Array of module names to keep active (e.g., "clock")
+    // Text overlay:
+    text: "Happy New Year!"
+  },
 
-    start: function () {
-        this.fireworksActive = false;
-        this.disabledModules = [];
-    },
+  start: function () {
+    this.fireworksActive = false;
+    this.disabledModules = [];
+    this._p5Instance = null;
+  },
 
-    getDom: function () {
-        const wrapper = document.createElement("div");
-        wrapper.id = "fireworksContainer";
-        return wrapper;
-    },
+  // Create the module's container.
+  // If fullscreen is true, force full screen; otherwise use the defined width/height.
+  getDom: function () {
+    const wrapper = document.createElement("div");
+    wrapper.id = "fireworksContainer";
+    if (this.config.fullscreen) {
+      wrapper.style.position = "fixed";
+      wrapper.style.top = "0";
+      wrapper.style.left = "0";
+      wrapper.style.width = "100vw";
+      wrapper.style.height = "100vh";
+      wrapper.style.zIndex = "9999";
+      wrapper.style.background = "transparent";
+    } else {
+      wrapper.style.position = "relative";
+      wrapper.style.width = this.config.width;
+      wrapper.style.height = this.config.height;
+    }
+    
+    // Create and append the text overlay element (initially hidden).
+    if (this.config.text) {
+      const textDiv = document.createElement("div");
+      textDiv.id = "fireworksText";
+      textDiv.className = "fireworks-text";
+      textDiv.innerHTML = this.config.text;
+      textDiv.style.display = "none"; // Hidden by default
+      wrapper.appendChild(textDiv);
+    }
+    
+    return wrapper;
+  },
 
-    notificationReceived: function (notification, payload, sender) {
-        if (notification === "DOM_OBJECTS_CREATED") {
-            this.scheduleFireworks();
+  notificationReceived: function (notification, payload, sender) {
+    if (notification === "DOM_OBJECTS_CREATED") {
+      this.scheduleFireworks();
+    }
+  },
+
+  scheduleFireworks: function () {
+    const MAX_DELAY = 2147483647; // Maximum delay allowed (~24.8 days in milliseconds)
+    const startTime = new Date(this.config.startDateTime).getTime();
+    const currentTime = Date.now();
+    const duration = this.config.duration;
+
+    if (currentTime < startTime) {
+      let delay = startTime - currentTime;
+      if (delay > MAX_DELAY) {
+        // If the delay is too long, wait MAX_DELAY and re-check.
+        setTimeout(() => this.scheduleFireworks(), MAX_DELAY);
+      } else {
+        setTimeout(() => this.startFireworks(), delay);
+      }
+    } else if (currentTime < startTime + duration) {
+      this.startFireworks();
+    } else {
+      console.warn("Fireworks time window has already passed.");
+    }
+  },
+
+  startFireworks: function () {
+    this.fireworksActive = true;
+    const container = document.getElementById("fireworksContainer");
+    container.classList.add("fullscreen");
+    
+    // Show the text overlay during the fireworks period.
+    const textDiv = document.getElementById("fireworksText");
+    if (textDiv) {
+      textDiv.style.display = "block";
+    }
+    
+    this.deactivateAndHideModules();
+    this.initializeP5();
+    setTimeout(() => {
+      this.stopFireworks();
+    }, this.config.duration);
+  },
+
+  stopFireworks: function () {
+    if (this._p5Instance) {
+      this._p5Instance.remove();
+      this._p5Instance = null;
+    }
+    const container = document.getElementById("fireworksContainer");
+    container.innerHTML = "";
+    this.fireworksActive = false;
+    this.reactivateAndShowModules();
+  },
+
+  deactivateAndHideModules: function () {
+    if (this.config.disableAllModules) {
+      const self = this;
+      MM.getModules().enumerate(function (module) {
+        if (
+          module.name !== "MMM-Fireworks" &&
+          self.config.keepModules.indexOf(module.name) === -1
+        ) {
+          console.log("Hiding module: " + module.name);
+          module.hide(500, () => {});
+          if (module.suspend) {
+            module.suspend();
+          }
+          self.disabledModules.push(module);
         }
-    },
+      });
+    } else {
+      console.log("disableAllModules is false; no modules will be hidden.");
+    }
+  },
 
-    scheduleFireworks: function () {
-        const startTime = new Date(this.config.startDateTime).getTime();
-        const currentTime = Date.now();
-        const delay = startTime - currentTime;
+  reactivateAndShowModules: function () {
+    const self = this;
+    this.disabledModules.forEach(function (module) {
+      console.log("Showing module: " + module.name);
+      module.show(500, () => {});
+      if (module.resume) {
+        module.resume();
+      }
+    });
+    this.disabledModules = [];
+  },
 
-        if (delay > 0) {
-            setTimeout(() => this.startFireworks(), delay);
-        } else {
-            console.warn("Fireworks start time has already passed.");
-        }
-    },
-
-    startFireworks: function () {
-        this.fireworksActive = true;
+  // Integrated p5.js fireworks sketch.
+  initializeP5: function () {
+    if (this._p5Instance) return;
+    const self = this;
+    const config = this.config;
+    this._p5Instance = new p5(function (p) {
+      let fireworks = [];
+      let gravity;
+      // Set up a full clear every 2 minutes to remove ghost trails.
+      setInterval(function () {
+        console.log("Performing full redraw (clear) every 2 minutes.");
+        p.clear();
+      }, 2 * 60 * 1000);
+      
+      p.setup = function () {
         const container = document.getElementById("fireworksContainer");
-        container.classList.add("fullscreen");
-
-        const canvas = document.createElement("canvas");
-        canvas.id = "fireworksCanvas";
-        container.appendChild(canvas);
-
-        this.deactivateAndHideModules(); // Suspend and hide modules
-
-        const fireworks = new Fireworks(canvas, {
-            maxRockets: 5,
-            rocketSpawnInterval: 100,
-            numParticles: 80,
-        });
-        fireworks.start();
-
-        setTimeout(() => {
-            this.stopFireworks(fireworks, container);
-        }, this.config.duration);
-    },
-
-    stopFireworks: function (fireworks, container) {
-        fireworks.stop();
-        container.innerHTML = ""; // Clear the canvas
-        this.fireworksActive = false;
-        this.reactivateAndShowModules(); // Reactivate and show modules
-    },
-
-   deactivateAndHideModules: function () {
-        MM.getModules().enumerate((module) => {
-            if (module.name !== "MMM-Fireworks") {
-                // Suspend the module if possible
-                if (module.suspend) {
-                    module.suspend();
-                }
-                // Hide the module with an empty callback function
-                module.hide(500, () => {}); // Provide an empty callback function
-                this.disabledModules.push(module);
+        p.createCanvas(container.offsetWidth, container.offsetHeight);
+        p.colorMode(p.HSB, 255);
+        gravity = p.createVector(0, 0.2);
+        p.background(0);
+      };
+      
+      p.draw = function () {
+        // Use a semi-transparent background for the trailing effect.
+        p.background(0, 0, 0, config.transparency);
+        
+        // Spawn a new firework with the specified probability.
+        if (p.random(1) < config.fireworkSpawnChance) {
+          fireworks.push(new Firework(p, gravity, config.explosionParticleCount));
+        }
+        
+        // Update and render fireworks.
+        for (let i = fireworks.length - 1; i >= 0; i--) {
+          fireworks[i].update();
+          fireworks[i].show();
+          if (fireworks[i].done()) {
+            fireworks.splice(i, 1);
+          }
+        }
+      };
+      
+      // --- Particle Class ---
+      class Particle {
+        constructor(p, x, y, hu, isFirework) {
+          this.p = p;
+          this.pos = p.createVector(x, y);
+          this.isFirework = isFirework;
+          if (this.isFirework) {
+            // Use configured magnitude values for the rocket's upward velocity.
+            this.vel = p.createVector(0, p.random(config.magnitude_high, config.magnitude_low));
+          } else {
+            this.vel = p5.Vector.random2D();
+            this.vel.mult(p.random(2, 10));
+          }
+          this.acc = p.createVector(0, 0);
+          this.lifespan = 255;
+          this.hu = hu;
+        }
+        applyForce(force) {
+          this.acc.add(force);
+        }
+        update() {
+          if (!this.isFirework) {
+            this.vel.mult(0.9);
+            this.lifespan -= 4;
+          }
+          this.vel.add(this.acc);
+          this.pos.add(this.vel);
+          this.acc.mult(0);
+        }
+        done() {
+          return this.lifespan < 0;
+        }
+        show() {
+          this.p.strokeWeight(this.isFirework ? 4 : 2);
+          this.p.stroke(this.hu, 255, 255, this.lifespan);
+          this.p.point(this.pos.x, this.pos.y);
+        }
+      }
+      
+      // --- Firework Class ---
+      class Firework {
+        constructor(p, gravity, explosionCount) {
+          this.p = p;
+          this.hu = p.random(255);
+          this.firework = new Particle(p, p.random(p.width), p.height, this.hu, true);
+          this.exploded = false;
+          this.particles = [];
+          this.gravity = gravity;
+          this.explosionCount = explosionCount;
+        }
+        done() {
+          return this.exploded && this.particles.length === 0;
+        }
+        update() {
+          if (!this.exploded) {
+            this.firework.applyForce(this.gravity);
+            this.firework.update();
+            if (this.firework.vel.y >= 0) {
+              this.exploded = true;
+              this.explode();
             }
-        });
-    },
-
-    reactivateAndShowModules: function () {
-        this.disabledModules.forEach((module) => {
-            // Resume the module if it was suspended
-            if (module.resume) {
-                module.resume();
+          }
+          for (let i = this.particles.length - 1; i >= 0; i--) {
+            this.particles[i].applyForce(this.gravity);
+            this.particles[i].update();
+            if (this.particles[i].done()) {
+              this.particles.splice(i, 1);
             }
-            // Show the module with an empty callback function
-            module.show(500, () => {}); // Provide an empty callback function
-        });
-        this.disabledModules = []; // Clear the list
-    },
-
-    getStyles: function () {
-        return ["MMM-Fireworks.css"];
-    },
-
-    getScripts: function () {
-        return ["fireworks.js"];
-    },
+          }
+        }
+        explode() {
+          for (let i = 0; i < this.explosionCount; i++) {
+            let particle = new Particle(this.p, this.firework.pos.x, this.firework.pos.y, this.hu, false);
+            this.particles.push(particle);
+          }
+        }
+        show() {
+          if (!this.exploded) {
+            this.firework.show();
+          }
+          for (let particle of this.particles) {
+            particle.show();
+          }
+        }
+      }
+    }, document.getElementById("fireworksContainer"));
+  },
+  
+  getStyles: function () {
+    return ["MMM-Fireworks.css"];
+  },
+  
+  getScripts: function () {
+    return ["https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.5.0/p5.min.js"];
+  },
 });
