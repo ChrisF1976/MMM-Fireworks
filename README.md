@@ -4,6 +4,8 @@ Example:
 
 ![Example of MMM-Fireworks](./MMM-Fireworks.mov)
 
+![Example of MMM-Fireworks](./MMM-Fireworks.png)
+
 The MMM-Fireworks module brings a visually stunning fireworks display to your MagicMirror, designed to celebrate special occasions. 
 The fireworks animation runs best in the fullscreen_above region, creating an immersive experience.
 The start time and duration of the display are configurable via the config.js file.
@@ -17,12 +19,6 @@ In your terminal, go to your [MagicMirror²][mm] Module folder and clone MMM-Fir
 ```bash
 cd ~/MagicMirror/modules
 git clone https://github.com/ChrisF1976/MMM-Fireworks.git
-```
-
-not needed but doesn't hurt: 
-```bash
-cd ~/MagicMirror/modules/MMM-Fireworks
-npm install
 ```
 
 ### Update
@@ -41,9 +37,26 @@ To use this module, add it to the modules array in the `config/config.js` file:
     module: "MMM-Fireworks",
     position: "fullscreen_above", // Required
     config: {
-        startDateTime: "2024-12-31T23:59:59", // ISO format for the start time
-        duration: 1*60*60*1000, // Duration in milliseconds (e.g., 1 hour)
-    }
+            startDateTime: "2025-12-31T23:59:30", // ISO format start time
+            duration: 6 * 60 * 60 * 1000,          // Duration in milliseconds (6 hours)
+            // p5 Fireworks settings:
+            fireworkSpawnChance: 0.2,              // Chance each frame to spawn a new firework - adjust carefuly beased on your hardware
+            explosionParticleCount: 30,            // Number of particles per explosion - adjust carefuly beased on your hardware
+            // Display settings:
+            fullscreen: false,                     // If false, use the defined width/height.
+            width: "400px",
+            height: "500px",
+            // Velocity settings for rocket particles:
+            magnitude_high: -25,                    //adjust to your screen size. Try a little.
+            magnitude_low: -8,                      //adjust to your screen size. Try a little.
+            // Trailing effect transparency (alpha value for background):
+            transparency: 60,                       //min: 0 max: 255 - best is around 50 for a nice effect
+            // Module management settings:
+            disableAllModules: true,                // If true, hide all other modules during fireworks. No visible effect in fullscreen.
+            keepModules: [""],                      // Array of module names to keep active (e.g., "clock")
+            // Text overlay:
+            text: "Happy New Year!",
+            },
 },
 ```
 
