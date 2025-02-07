@@ -78,10 +78,22 @@ Automatically adjusts to the screen size and aspect ratio.
 
 ## Configuration options
 
-Option|Possible values|Default|Description
-------|---------------|-------|-----------
-`startDateTime`|`string`|"2024-12-31T23:59:00"|Define the start time for the effect.
-`duration`|`integer`|`1*60*60*1000`|Interval (in milliseconds) for animation. 1 hour in this example.
+| Parameter              | Type                     | Default Value                      | Description          |
+|------------------------|--------------------------|------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `startDateTime`        | String (ISO date)        | `"2025-12-31T23:59:30"`             | The date and time when the fireworks should start. The module checks this value against the current time to decide when to launch the fireworks effect.     |
+| `duration`             | Number (milliseconds)    | `6 * 60 * 60 * 1000` (6 hours)       | The length of time (in milliseconds) that the fireworks effect will remain active after it starts.                                                            |
+| `fireworkSpawnChance`  | Number (0–1)             | `0.5`                              | The probability that a new firework is spawned on each frame of the p5.js sketch. A higher value means more frequent fireworks.                             |
+| `explosionParticleCount` | Number                 | `40`                               | The number of particles generated when a firework (rocket) explodes. Increasing this value will create a denser explosion effect.                           |
+| `fullscreen`           | Boolean                  | `false`                            | If set to `true`, the module’s container will cover the entire viewport. If `false`, it will use the dimensions defined by `width` and `height`.            |
+| `width`                | String                   | `"400px"`                          | The width of the module’s container when `fullscreen` is `false`.                                                                                           |
+| `height`               | String                   | `"500px"`                          | The height of the module’s container when `fullscreen` is `false`.                                                                                          |
+| `magnitude_high`       | Number                   | `-19`                              | The higher (more negative) bound for the initial upward velocity of the rocket particles. Determines how fast they launch upward.                           |
+| `magnitude_low`        | Number                   | `-8`                               | The lower (less negative) bound for the initial upward velocity of the rocket particles. Determines the slowest upward speed before explosion.              |
+| `transparency`         | Number (0–255)           | `10`                               | The alpha value used in the `p.background()` call to create the trailing effect. Lower values mean the background is more transparent.                      |
+| `disableAllModules`    | Boolean                  | `true`                             | If set to `true`, all other modules (except those specified in `keepModules`) will be hidden (and suspended) during the fireworks effect.                  |
+| `keepModules`          | Array of Strings         | `["clock"]`                        | A list of module names that should remain active even when `disableAllModules` is `true`. For example, if you want to keep a clock module visible, list its name here. |
+| `text`                 | String                   | `"Happy New Year!"`                | The text that will be overlaid on the module during the fireworks period. Its styling (font, size, color, position) is controlled via the CSS file.         |
+
 
 ## How It Works
 - The module listens for the specified startDateTime and triggers the fireworks display.
