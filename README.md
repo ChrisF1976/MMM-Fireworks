@@ -3,11 +3,12 @@
 ## Update 09.02.2025:
 * Multiple Scheduled Events:
 The module now accepts an array of scheduled events (each with its own start time and text message). At each event time, the fireworks start with the corresponding overlay text.
+
 * Notification Triggers:
-Two separate notifications have been added:
-- NotificationStart (e.g. "FireFireFire") starts the fireworks immediately using either the notification’s payload text or a default (textNotification).
-- NotificationStop (e.g. "StopFire") stops the fireworks immediately if they are running.
-When a notification is received, it overrides the scheduled events temporarily without affecting future scheduled shows.
+** Two separate notifications have been added:
+*** NotificationStart (e.g. "FireFireFire") starts the fireworks immediately using either the notification’s payload text or a default (textNotification).
+*** NotificationStop (e.g. "StopFire") stops the fireworks immediately if they are running.
+**When a notification is received, it overrides the scheduled events temporarily without affecting future scheduled shows.
 
 
 Example:
