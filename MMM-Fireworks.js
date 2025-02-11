@@ -50,6 +50,7 @@ Module.register("MMM-Fireworks", {
       wrapper.style.height = "100vh";
       wrapper.style.zIndex = "9999";
       wrapper.style.background = "transparent";
+      wrapper.style.pointerEvents = "none";
     } else {
       wrapper.style.position = "relative";
       wrapper.style.width = this.config.width;
@@ -217,6 +218,7 @@ Module.register("MMM-Fireworks", {
         p.colorMode(p.HSB, 255);
         gravity = p.createVector(0, 0.2);
         p.background(0);
+        p.canvas.style.pointerEvents = "none";
       };
       
       p.draw = function () {
